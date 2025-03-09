@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Recomendación de Películas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container index-container">
+         <!-- Barra de navegación superior -->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: rgba(0, 0, 0, 0);">
+            <div class="container-fluid">
+            <!-- Sección Izquierda: Logo + Nombre de Usuario con Dropdown -->
+            <div class="d-flex align-items-center">
+              <!-- LOGO -->
+               <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='imgs/Logo.png') }}"
+                     alt="Logo"
+                     width="45"
+                     height="50">
+              </a>
+
+              <!-- Dropdown del Usuario -->
+              <div class="dropdown ms-3">
+                <!-- Texto 'Bienvenido, user_1' que despliega el menú -->
+                <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                   style="font-weight: 600;">{{ username }}
+                </a>
+                <!-- Menú desplegable con la opción 'Cerrar sesión' -->
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('logout') }}">
+                      Cerrar sesión
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- Sección Central: Botones de navegación -->
+            <ul class="navbar-nav mx-auto d-flex align-items-center gap-3">
+              <!-- Home -->
+              <li class="nav-item">
+                <a class="nav-link text-white fs-5"
+                   href="{{ url_for('dashboard') }}">
+                  Home
+                </a>
+              </li>
+              <!-- Tus Recomendaciones -->
+              <li class="nav-item">
+                <a class="nav-link text-white fs-5"
+                   href="{{ url_for('index') }}">
+                  Tus Recomendaciones
+                </a>
+              </li>
+            </ul>
+            <!-- Sección Central: Barra de Búsqueda -->
+            <form class="d-flex" action="{{ url_for('search') }}" method="GET" style="max-width: 40%; width: 100%;">
+              <input class="form-control me-2" type="search" name="query" placeholder="Buscar películas..." aria-label="Search">
+              <button class="btn btn-outline-light" type="submit">Buscar</button>
+            </form>
+          </div>
+        </nav>
+        <h1>🎬 Recomendador de Películas</h1>
+        <form method="post">
+            <div class="mb-3">
+                <label for="method" class="form-label">Selecciona el método de recomendación:</label>
+                <select class="form-select" id="method" name="method" required>
+                    <option value="colaborativo_usuarios">Filtrado Colaborativo (Usuarios)</option>
+                    <option value="colaborativo_items">Filtrado Colaborativo (Ítems)</option>
+                    <option value="svd">Filtrado SVD</option>
+                    <option value="contenido">Filtrado basado en Contenido</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="user_id" class="form-label">ID de Usuario (Opcional para contenido):</label>
+                <input type="number" class="form-control" id="user_id" name="user_id" placeholder="Ingrese su ID de usuario">
+            </div>
+            <div class="mb-3">
+                <label for="movie_title" class="form-label">Título de Película (Opcional para colaborativo):</label>
+                <input type="text" class="form-control" id="movie_title" name="movie_title" placeholder="Ingrese el título de la película">
+            </div>
+            <div class="mb-3">
+                <label for="num_recommendations" class="form-label">Número de recomendaciones:</label>
+                <input type="number" class="form-control" id="num_recommendations" name="num_recommendations" value="10" min="1" max="20">
+            </div>
+            <button type="submit" class="btn btn-custom w-100">🔍 Obtener Recomendaciones</button>
+        </form>
+
+        {% if error_message %}
+            <div class="alert alert-danger mt-3">{{ error_message }}</div>
+        {% endif %}
+
+        {% if recommendations is not none and recommendations|length > 0 %}
+            <div class="recommendations mt-4">
+                <h2>🍿 Tus Recomendaciones:</h2>
+                <ul class="list-group">
+                    {% for rec in recommendations %}
+                        <li class="list-group-item">
+                            <strong>{{ rec.get('title', 'Título desconocido') }}</strong> <br>
+                            {% if rec.get('final_score') is not none %}
+                                🎯 Predicción Final Total: {{ rec.get('final_score', 0)|round(2) }}<br>
+                            {% endif %}
+                            {% if rec.get('predicted_rating') is not none %}
+                                🎯 Predicción personalizada: {{ rec.get('predicted_rating', 0)|round(2) }}<br>
+                            {% endif %}
+                            ⭐ Puntuación global: {{ rec.get('vote_average', 'N/A') }} (📊 {{ rec.get('vote_count', 0) }} votos)
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

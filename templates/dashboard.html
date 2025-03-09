@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Dashboard - Movie Recommender</title>
+    <!-- CSS de Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- CSS propio -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Barra de navegación superior -->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: rgba(0, 0, 0, 0.7);">
+            <div class="container-fluid">
+                <!-- Sección Izquierda: Logo + Dropdown de Usuario -->
+                <div class="d-flex align-items-center">
+                    <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='imgs/Logo.png') }}"
+                             alt="Logo" width="45" height="50">
+                    </a>
+                    <div class="dropdown ms-3">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                           id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                           style="font-weight: 600;">{{ username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Menú central -->
+                <ul class="navbar-nav mx-auto d-flex align-items-center gap-4">
+                    <li class="nav-item">
+                        <a class="nav-link text-white fs-5" href="{{ url_for('dashboard') }}">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fs-5" href="{{ url_for('index') }}">
+                            Tus Recomendaciones
+                        </a>
+                    </li>
+                </ul>
+                <!-- Buscador rápido -->
+                <form class="d-flex" action="{{ url_for('search') }}" method="GET" style="max-width: 35%; width: 100%;">
+                    <input class="form-control me-2" type="search" name="query" placeholder="Buscar películas..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
+                </form>
+            </div>
+        </nav>
+                  <!-- Contenedor principal de filtros y películas -->
+            <div class="container filters-container">
+                <!-- Panel de filtros con aspecto de tarjeta -->
+                <div class="filter-card mx-auto" style="max-width: 700px;">
+                    <h5>Filtrar Películas</h5>
+                    <form class="row g-4 align-items-end justify-content-center" action="{{ url_for('search') }}" method="GET">
+                        <!-- Filtro Género -->
+                        <div class="col-sm-2">
+                            <label for="genre" class="form-label text-white" style="font-size: 0.9rem;">Género</label>
+                            <select class="form-select form-select-sm" id="genre" name="genre">
+                                <option value="">Todos los géneros</option>
+                                <option value="Action">Action</option>
+                                <option value="Adventure">Adventure</option>
+                                <option value="Animation">Animation</option>
+                                <option value="Comedy">Comedy</option>
+                                <option value="Crime">Crime</option>
+                                <option value="Documentary">Documentary</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Family">Family</option>
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Horror">Horror</option>
+                                <option value="Music">Music</option>
+                                <option value="Mystery">Mystery</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Science Fiction">Science Fiction</option>
+                                <option value="Thriller">Thriller</option>
+                                <option value="War">War</option>
+                                <option value="Western">Western</option>
+                            </select>
+                        </div>
+                        <!-- Filtro Año -->
+                        <div class="col-sm-2">
+                            <label for="year" class="form-label text-white" style="font-size: 0.9rem;">Año</label>
+                            <select class="form-select form-select-sm" id="year" name="year">
+                                <option value="">Todos los años</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                                <option value="2020">2020</option>
+                                <option value="2019">2019</option>
+                            </select>
+                        </div>
+                        <!-- Filtro Nota Mínima -->
+                        <div class="col-sm-2">
+                            <label for="min_rating" class="form-label text-white" style="font-size: 0.9rem;">Nota Mínima</label>
+                            <select class="form-select form-select-sm" id="min_rating" name="min_rating">
+                                <option value="">Sin filtro</option>
+                                <option value="8">8 o superior</option>
+                                <option value="7">7 o superior</option>
+                                <option value="6">6 o superior</option>
+                                <option value="5">5 o superior</option>
+                            </select>
+                        </div>
+                        <!-- Botón de aplicar filtros -->
+                        <div class="col-sm-2 text-end">
+                            <button type="submit" class="btn btn-custom w-100" style="font-size: 0.9rem;">
+                                Aplicar Filtros
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Sección de películas por género -->
+            {% for genre, movies in movies_by_genre.items() %}
+                <div class="genre-section">
+                    <div id="carousel-{{ genre|replace(' ', '-') }}" class="carousel slide" data-bs-interval="false">
+                        <div class="genre-title-overlay">{{ genre }}</div>
+                        <div class="carousel-inner">
+                            {% for movie in movies|batch(6) %}
+                                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                    <div class="d-flex justify-content-center movie-row">
+                                        {% for item in movie %}
+                                            <div class="movie-card">
+                                                <img src="{{ item['poster_path'] if item['poster_path'] else url_for('static', filename='default_poster.jpg') }}"
+                                                     alt="{{ item['title'] }}">
+                                                <h4>{{ item['title'] }}</h4>
+                                                <a href="{{ url_for('movie_detail', movie_title=item['title']) }}">Ver detalles</a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <!-- Controles del carrusel -->
+                        <button class="carousel-control-prev" type="button"
+                                data-bs-target="#carousel-{{ genre|replace(' ', '-') }}"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button"
+                                data-bs-target="#carousel-{{ genre|replace(' ', '-') }}"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- JS de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

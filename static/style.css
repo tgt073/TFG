@@ -1,0 +1,509 @@
+/* ================================
+   Estilos Generales
+================================ */
+body {
+    background: linear-gradient(to right, #141e30, #1e3c72);
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    padding-top: 56px; /* Ajusta según la altura real de tu navbar */
+}
+
+.navbar {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(5px); /* añade un efecto difuminado (frosted glass) */
+  padding: 15px;
+}
+
+/* ================================
+   Dashboard
+================================ */
+.dashboard-container {
+    width: 100%;
+    margin-top: 60px; /* Ajusta para acercar/alejar la sección de filtros */
+    padding: 20px;
+}
+
+.dashboard-container h2 {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Ajusta la tarjeta de filtros y su separación */
+.filters-container {
+    margin-top: 0;
+}
+.filters-card {
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+.filters-card-header {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Botón de Cerrar Sesión */
+.logout-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #e50914;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 8px 15px;
+    border: 2px solid #e50914;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background 0.3s, color 0.3s;
+}
+.logout-button:hover {
+    background-color: white;
+    color: #e50914;
+}
+
+/* Caja de Filtros con estética de tarjeta, sin efecto hover */
+.filter-card {
+    background-color: #222; /* Mismo color que tus movie-card */
+    color: white;
+    border-radius: 10px;    /* Bordes redondeados, igual que tus movie-card */
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: box-shadow 0.3s ease-in-out; /* Sin transform: scale */
+}
+
+.filter-card h5 {
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Si NO quieres efecto hover, NO definas .filter-card:hover { transform: scale(...) } */
+/* Pero si quieres un leve brillo sin movimiento, podrías hacer: */
+.filter-card:hover {
+    box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.4);
+    /* Sin transform, así no se mueve ni hace zoom */
+}
+
+
+
+/* Sección de Géneros */
+.genre-section {
+    width: 100%;
+    margin-top: 70px; /* Ajusta este valor para más o menos espacio */
+    margin-bottom: 80px;
+    padding-left: 20px;
+}
+.genre-section h3 {
+    font-size: 24px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.genre-title-overlay {
+    position: absolute;
+    top: -35px; /* Subir más el título */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.6); /* Fondo translúcido */
+    color: #FFD700; /* Dorado */
+    padding: 4px 10px; /* Reducir el tamaño del fondo */
+    border-radius: 5px;
+    text-shadow: 0px 0px 10px rgba(255, 215, 0, 0.6);
+    z-index: 10;
+    display: inline-block;
+}
+
+/* Filas y Tarjetas de Películas */
+.movie-row {
+    display: flex;
+    gap: 20px; /* Aumenta la separación horizontal entre tarjetas */
+    justify-content: center;
+    padding: 20px 0;
+}
+/* Quita la altura fija y usa min-height para que no se corte */
+.movie-card {
+    width: 220px;           /* Mantiene un ancho fijo */
+    min-height: 370px;      /* Espacio mínimo para imagen + título */
+    background-color: #222;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.movie-card img {
+    width: 100%;
+    max-height: 280px;   /* Controla la altura máxima de la imagen */
+    object-fit: cover;
+    border-radius: 10px;
+}
+.movie-card h4 {
+    font-size: 14px;
+    margin: 5px 0;
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+.movie-card a {
+    color: #e50914;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+}
+.movie-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.4);
+}
+
+/* ================================
+   Página de Detalle de Película
+================================ */
+.movie-detail-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    color: white;
+    margin-top: 60px; /* Ajusta según el tamaño del navbar */
+}
+.movie-info {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+.movie-poster {
+    width: 250px;
+    height: 375px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+}
+.movie-text {
+    flex: 1;
+    font-size: 18px;
+}
+.movie-text h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+.movie-text p {
+    margin: 5px 0;
+}
+.back-button {
+    display: inline-block;
+    background-color: #e50914;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: background 0.3s;
+}
+.back-button:hover {
+    background-color: #f40612;
+}
+
+/* ================================
+   Carrusel de Recomendaciones
+================================ */
+#recommendationCarousel {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+#recommendationCarousel .carousel-inner {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    width: 100%;
+}
+#recommendationCarousel .carousel-item {
+    flex: 0 0 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.6s ease;
+}
+#recommendationCarousel .carousel-item.active {
+    display: flex;
+}
+#recommendationCarousel .movie-row {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+}
+.recommendation-card {
+    background-color: #222;
+    width: 200px;
+    height: 350px;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 5px;
+}
+.recommendation-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.4);
+}
+.recommendation-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 80px !important;
+    height: 60px;
+    opacity: 1;
+    position: absolute;
+    top: 50% !important;
+    transform: translateY(-50%);
+}
+
+.carousel-control-prev-dash,
+.carousel-control-next-dash {
+    width: 80px !important;
+    height: 60px;
+    opacity: 1;
+    position: absolute;
+    top: 50% !important;
+    transform: translateY(-50%);
+}
+
+.carousel-control-prev {
+    left: -60px !important;
+}
+
+.carousel-control-next {
+    right: -60px !important;
+}
+
+/* Ajustes solo para el carrusel en el dashboard */
+.dashboard-container .carousel-control-prev {
+    left: 155px !important;
+}
+
+.dashboard-container .carousel-control-next {
+    right: 155px !important;
+}
+
+/* Círculo oscuro tras la flecha */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+}
+
+/* Para que el contenedor no se expanda con los slides */
+.carousel-inner {
+    overflow: hidden;
+}
+
+/* ================================
+   Página de Login
+================================ */
+/* Contenedor General */
+.login-wrapper {
+    display: flex;
+    justify-content: space-between; /* Asegura que haya un espacio entre logo y formulario */
+    align-items: center;
+    height: 100vh;
+    padding: 0 10%; /* Ajusta los márgenes laterales */
+}
+
+/* Contenedor del logo */
+.logo-container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start; /* Mueve el logo más a la izquierda */
+    align-items: center;
+}
+
+.logo-container img {
+    max-width: 80%; /* Ajusta el tamaño del logo si es necesario */
+    height: auto;
+}
+
+/* Contenedor del formulario */
+.login-container {
+    flex: 1;
+    max-width: 400px;
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+    margin-right: 15%; /* Empuja el login más al centro */
+}
+
+.login-container input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+}
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #e50914;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+.login-container button:hover {
+    background-color: #f40612;
+}
+.login-container a {
+    color: #e50914;
+    text-decoration: none;
+    font-weight: bold;
+}
+.login-container h2 {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+.login-container p {
+    color: white;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+/* ================================
+   Página de Registro
+================================ */
+.register-container {
+    max-width: 350px;
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+    margin: auto;
+    margin-top: 10%;
+}
+.register-container input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+}
+.register-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #e50914;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+.register-container button:hover {
+    background-color: #f40612;
+}
+.register-container a {
+    color: #e50914;
+    text-decoration: none;
+    font-weight: bold;
+}
+.register-container h2 {
+    color: white;
+    font-weight: bold;
+}
+
+/* ================================
+   Página Index
+================================ */
+.index-container {
+    max-width: 800px;
+    margin: 50px auto;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+    margin-top: 75px; /* Ajusta según el tamaño del navbar */
+}
+.index-container h1 {
+    text-align: center;
+}
+.index-container label {
+    font-weight: bold;
+}
+.btn-custom {
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    transition: 0.3s;
+}
+.btn-custom:hover {
+    background-color: #ff4500;
+}
+.recommendations {
+    margin-top: 20px;
+}
+.list-group-item {
+    background-color: #2a2f45;
+    color: white;
+}
+
+/* ================================
+   Página de Resultados de Búsqueda
+================================ */
+.search-container {
+    margin-top: 75px; /* Ajusta según el tamaño del navbar */
+}
+
+/* Estilos para la Card y efecto hover */
+.card {
+    background-color: #222;
+    color: white;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+/* Transición para la imagen de la Card */
+.card-img-top {
+    transition: transform 0.3s;
+    object-fit: cover;
+    height: 300px;
+}
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+/* Truncado de texto a dos líneas */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

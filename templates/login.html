@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login - Movie Recommender</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+     <div class="login-wrapper">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='imgs/LogoGrande.png') }}" alt="Logo">
+        </div>
+        <div class="login-container">
+            <h2>Iniciar sesión</h2>
+            <form method="POST">
+                <input type="text" name="username" placeholder="Nombre de usuario o ID" required>
+                <input type="password" name="password" placeholder="Contraseña (opcional si usas ID)">
+                <button type="submit">Iniciar sesión</button>
+            </form>
+            <p>¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate</a></p>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div>{{ messages[0] }}</div>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

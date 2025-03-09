@@ -1,0 +1,15 @@
+Flask
+Flask-Login
+Werkzeug
+numpy
+pandas
+scikit-learn
+scikit-surprise
+joblib
+requests
+dotenv
+python-dotenv
+Flask-Caching
+scipy
+tqdm
+annoy
