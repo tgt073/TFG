@@ -11,8 +11,8 @@ from RecomendadoresPruebas.Usuarios import PearsonCF_sparse
 from RecomendadoresPruebas.Items import ItemBasedCF
 
 # Rutas a los archivos
-MOVIES_FILE = 'C:/Users/tgtob/TFG/ConjutoDatos/DatosFinales/final_movies.csv'
-RATINGS_FILE = 'C:/Users/tgtob/TFG/ConjutoDatos/DatosFinales/ratings.csv'
+MOVIES_FILE = 'C:/Users/tgtob/TFG/ConjutoDatos/DatosFinales/Final_movies.csv'
+RATINGS_FILE = 'C:/Users/tgtob/TFG/ConjutoDatos/DatosFinales/Final_ratings.csv'
 
 # Cargar datos preprocesados
 ratings_df, movies_df = load_preprocessed_data(RATINGS_FILE, MOVIES_FILE)
