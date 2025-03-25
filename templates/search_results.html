@@ -8,77 +8,83 @@
 </head>
 <body>
     <div class="search-container">
-            <!-- Barra de navegación superior -->
-            <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: rgba(0, 0, 0, 0);">
-                <div class="container-fluid">
+        <!-- Barra de navegación superior -->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: rgba(0, 0, 0, 0);">
+            <div class="container-fluid">
                 <!-- Sección Izquierda: Logo + Nombre de Usuario con Dropdown -->
                 <div class="d-flex align-items-center">
-                  <!-- LOGO -->
-                   <a class="navbar-brand" href="{{ url_for('dashboard') }}">
-                    <img src="{{ url_for('static', filename='imgs/Logo.png') }}"
-                         alt="Logo"
-                         width="45"
-                         height="50">
-                  </a>
-
-                  <!-- Dropdown del Usuario -->
-                  <div class="dropdown ms-3">
-                    <!-- Texto 'Bienvenido, user_1' que despliega el menú -->
-                    <a class="nav-link dropdown-toggle text-white" href="#" role="button"
-                       id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-                       style="font-weight: 600;">{{ username }}
+                    <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='imgs/Logo.png') }}"
+                             alt="Logo"
+                             width="45"
+                             height="50">
                     </a>
-                    <!-- Menú desplegable con la opción 'Cerrar sesión' -->
-                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
-                      <li>
-                        <a class="dropdown-item" href="{{ url_for('logout') }}">
-                          Cerrar sesión
+                    <!-- Dropdown del Usuario -->
+                    <div class="dropdown ms-3">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                           id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                           style="font-weight: 600;">{{ username }}
                         </a>
-                      </li>
-                    </ul>
-                  </div>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    Cerrar sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <!-- Sección Central: Botones de navegación -->
                 <ul class="navbar-nav mx-auto d-flex align-items-center gap-3">
-                  <!-- Home -->
-                  <li class="nav-item">
-                    <a class="nav-link text-white fs-5"
-                       href="{{ url_for('dashboard') }}">
-                      Home
-                    </a>
-                  </li>
-                  <!-- Tus Recomendaciones -->
-                  <li class="nav-item">
-                    <a class="nav-link text-white fs-5"
-                       href="{{ url_for('index') }}">
-                      Tus Recomendaciones
-                    </a>
-                  </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fs-5"
+                           href="{{ url_for('dashboard') }}">
+                           Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fs-5"
+                           href="{{ url_for('index') }}">
+                           Tus Recomendaciones
+                        </a>
+                    </li>
                 </ul>
-                <!-- Sección Central: Barra de Búsqueda -->
+                <!-- Barra de Búsqueda -->
                 <form class="d-flex" action="{{ url_for('search') }}" method="GET" style="max-width: 40%; width: 100%;">
-                  <input class="form-control me-2" type="search" name="query" placeholder="Buscar películas..." aria-label="Search">
-                  <button class="btn btn-outline-light" type="submit">Buscar</button>
+                    <input class="form-control me-2" type="search" name="query" placeholder="Buscar películas..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
                 </form>
-              </div>
-            </nav>
+            </div>
+        </nav>
         <div class="container py-4">
-            <h1 class="mb-4">Resultados de la búsqueda: "{{ query }}"</h1>
+            <h1 class="mb-4">Resultados de: "{{ query }}"</h1>
+            {% if applied_filters %}
+              <div class="mb-3">
+                <strong>Filtros aplicados:</strong>
+                <ul>
+                  {% for key, value in applied_filters.items() %}
+                    <li>{{ key }}: {{ value }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
             {% if results and results|length > 0 %}
-                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-4">
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-5">
                     {% for item in results %}
                         <div class="col">
                             <div class="movie-card">
                                 <img src="{{ item.poster_path if item.poster_path else url_for('static', filename='default_poster.jpg') }}"
                                      alt="{{ item.title }}">
                                 <h4>{{ item.title }}</h4>
-                                <a href="{{ url_for('movie_detail', movie_title=item.title) }}">Ver detalles</a>
+                                <a href="{{ url_for('movie_detail', movie_title=item['title'], year=item['release_year']) }}" class="btn btn-warning">
+                                        Ver detalles
+                                </a>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p>No se encontraron películas para tu búsqueda.</p>
+                <p>No se encontraron películas que cumplan los filtros.</p>
             {% endif %}
         </div>
     </div>

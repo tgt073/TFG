@@ -7,201 +7,83 @@
 </head>
 <body>
     <div class="movie-detail-container">
-            <!-- Barra de navegación superior -->
-            <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: rgba(0, 0, 0, 0);">
-                <div class="container-fluid">
-                <!-- Sección Izquierda: Logo + Nombre de Usuario con Dropdown -->
-                <div class="d-flex align-items-center">
-                  <!-- LOGO -->
-                  <a class="navbar-brand" href="{{ url_for('dashboard') }}">
-                    <img src="{{ url_for('static', filename='imgs/Logo.png') }}"
-                         alt="Logo"
-                         width="45"
-                         height="50">
-                  </a>
-                  <!-- Dropdown del Usuario -->
-                  <div class="dropdown ms-3">
-                    <!-- Texto 'Bienvenido, user_1' que despliega el menú -->
-                    <a class="nav-link dropdown-toggle text-white" href="#" role="button"
-                       id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-                       style="font-weight: 600;">{{ username }}
-                    </a>
-                    <!-- Menú desplegable con la opción 'Cerrar sesión' -->
+        <!-- Barra de navegación superior -->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: rgba(0, 0, 0, 0);">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                    <img src="{{ url_for('static', filename='imgs/Logo.png') }}" alt="Logo" width="45" height="50">
+                </a>
+                <div class="dropdown ms-3">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 600;">{{ username }}</a>
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
-                      <li>
-                        <a class="dropdown-item" href="{{ url_for('logout') }}">
-                          Cerrar sesión
-                        </a>
-                      </li>
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar sesión</a></li>
                     </ul>
-                  </div>
                 </div>
-                <!-- Sección Central: Botones de navegación -->
                 <ul class="navbar-nav mx-auto d-flex align-items-center gap-3">
-                  <!-- Home -->
-                  <li class="nav-item">
-                    <a class="nav-link text-white fs-5"
-                       href="{{ url_for('dashboard') }}">
-                      Home
-                    </a>
-                  </li>
-                  <!-- Tus Recomendaciones -->
-                  <li class="nav-item">
-                    <a class="nav-link text-white fs-5"
-                       href="{{ url_for('index') }}">
-                      Tus Recomendaciones
-                    </a>
-                  </li>
+                    <li class="nav-item"><a class="nav-link text-white fs-5" href="{{ url_for('dashboard') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link text-white fs-5" href="{{ url_for('index') }}">Tus Recomendaciones</a></li>
                 </ul>
-                <!-- Sección Central: Barra de Búsqueda -->
                 <form class="d-flex" action="{{ url_for('search') }}" method="GET" style="max-width: 40%; width: 100%;">
-                  <input class="form-control me-2" type="search" name="query" placeholder="Buscar películas..." aria-label="Search">
-                  <button class="btn btn-outline-light" type="submit">Buscar</button>
+                    <input class="form-control me-2" type="search" name="query" placeholder="Buscar películas...">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
                 </form>
-              </div>
-            </nav>
+            </div>
+        </nav>
+
         <div class="movie-detail-container">
             <div class="movie-info">
-                <img src="{{ movie.poster_path if movie.poster_path else url_for('static', filename='default_poster.jpg') }}"
-                     alt="{{ movie.title }}" class="movie-poster">
+                <img src="{{ movie.poster_path if movie.poster_path else url_for('static', filename='default_poster.jpg') }}" alt="{{ movie.title }}" class="movie-poster">
                 <div class="movie-text">
-                    <h1>{{ movie.title }}
-                      {% if movie.release_year and movie.release_year != 'Desconocido' %}
-                        ({{ movie.release_year }})
-                      {% endif %}
-                    </h1>
+                    <h1>{{ movie.title }} {% if movie.release_year and movie.release_year != 'Desconocido' %} ({{ movie.release_year }}) {% endif %}</h1>
                     <p><strong>Sinopsis:</strong> {{ movie.overview if movie.overview else "No disponible" }}</p>
                     <p><strong>Nota:</strong> {{ movie.imdb_rating if movie.imdb_rating else "No calificada" }} / 10</p>
-                    <p><strong>Géneros:</strong>
-                        {% if movie.genres and movie.genres|length > 0 %}
-                            {{ movie.genres|join(', ') }}
-                        {% else %}
-                            No disponible
-                        {% endif %}
-                    </p>
+                    <p><strong>Géneros:</strong> {{ movie.genres|join(', ') if movie.genres else "No disponible" }}</p>
                     <p><strong>Director:</strong> {{ movie.director if movie.director else "Desconocido" }}</p>
-                    <p><strong>Reparto:</strong>
-                        {% if movie.main_actors and movie.main_actors|length > 0 %}
-                            {{ movie.main_actors | join(', ') }}
-                        {% else %}
-                            No disponible
-                        {% endif %}
-                    </p>
+                    <p><strong>Reparto:</strong> {{ movie.main_actors | join(', ') if movie.main_actors else "No disponible" }}</p>
                     <a href="{{ url_for('dashboard') }}" class="back-button">Volver</a>
                 </div>
             </div>
-            <h2 class="section-title">Más como {{ movie.title }}</h2>
-            <div id="recommendationCarousel" class="carousel slide" data-bs-interval="false" data-bs-wrap="true">
-                <div class="carousel-inner">
-                    {% for rec in recommendations|batch(5) %}
-                        <div class="carousel-item {% if loop.first %}active{% endif %}">
-                            <div class="d-flex justify-content-center movie-row">
-                                {% for item in rec %}
-                                    <div class="movie-card">
-                                        <img src="{{ item.poster_path if item.poster_path else url_for('static', filename='default_poster.jpg') }}"
-                                             alt="{{ item.title }}">
-                                        <h4>{{ item.title }}</h4>
-                                        <a href="{{ url_for('movie_detail', movie_title=item.title) }}">Ver detalles</a>
+
+            {# Títulos para cada sección de recomendaciones #}
+            {% set section_titles = {
+                'Contenido': 'Si te gustó "' ~ movie.title ~ '", estas también te encantarán (Basado en Contenido)',
+                'Híbrido': 'Basado en tu historial, te recomendamos películas similares a "' ~ movie.title ~ '" (Recomendación Híbrida)',
+                'Ítems': 'Otros títulos que se parecen a "' ~ movie.title ~ '" (Filtrado Colaborativo - Ítems)',
+                'Users': 'Otros títulos que se parecen a "' ~ movie.title ~ '" (Filtrado Colaborativo - Users)',
+                'SVD': 'Descubre más películas como "' ~ movie.title ~ '" (Filtrado SVD)'
+            } %}
+
+            {# Secciones de recomendaciones #}
+            {% for rec_section, rec_list in [('Contenido', recommendations), ('Híbrido', hybrid_recommendations), ('Ítems', items_recommendations), ('Users', users_recommendations), ('SVD', svd_recommendations)] %}
+                {% if rec_list and rec_list|length > 0 %}
+                    <h2 class="section-title">{{ section_titles[rec_section] }}</h2>
+                    <div id="{{ rec_section }}Carousel" class="carousel slide" data-bs-interval="false" data-bs-wrap="true">
+                        <div class="carousel-inner">
+                            {% for rec in rec_list|batch(5) %}
+                                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                    <div class="d-flex justify-content-center movie-row">
+                                        {% for item in rec %}
+                                            <div class="movie-card">
+                                                <img src="{{ item.poster_path if item.poster_path else url_for('static', filename='default_poster.jpg') }}" alt="{{ item.title }}">
+                                                <h4>{{ item.title }}</h4>
+                                                 <a href="{{ url_for('movie_detail', movie_title=item['title'], year=item['release_year']) }}" class="btn btn-warning">
+                                                    Ver detalles
+                                                 </a>
+                                            </div>
+                                        {% endfor %}
                                     </div>
-                                {% endfor %}
-                            </div>
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#recommendationCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#recommendationCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                </button>
-            </div>
-            <!-- Sección de Recomendaciones Híbridas -->
-            {% if hybrid_recommendations and hybrid_recommendations|length > 0 %}
-                <h2 class="section-title">Porque viste {{ movie.title }}</h2>
-                <div id="hybridCarousel" class="carousel slide" data-bs-interval="false" data-bs-wrap="true">
-                    <div class="carousel-inner">
-                        {% for rec in hybrid_recommendations|batch(5) %}
-                            <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                <div class="d-flex justify-content-center movie-row">
-                                    {% for item in rec %}
-                                        <div class="movie-card">
-                                            <img src="{{ item.poster_path if item.poster_path else url_for('static', filename='default_poster.jpg') }}"
-                                                 alt="{{ item.title }}">
-                                            <h4>{{ item.title }}</h4>
-                                            <a href="{{ url_for('movie_detail', movie_title=item.title) }}">Ver detalles</a>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#{{ rec_section }}Carousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#{{ rec_section }}Carousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
                     </div>
-                    <!-- Controles del carrusel para la sección híbrida -->
-                    <button class="carousel-control-prev" type="button" data-bs-target="#hybridCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#hybridCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    </button>
-                </div>
-            {% endif %}
-                    <!--sección Items -->
-            {% if items_recommendations and items_recommendations|length > 0 %}
-                <h2 class="section-title">Si disfrutaste {{ movie.title }} también te gustarán</h2>
-                <div id="ItemsCarousel" class="carousel slide" data-bs-interval="false" data-bs-wrap="true">
-                    <div class="carousel-inner">
-                        {% for rec in items_recommendations|batch(5) %}
-                            <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                <div class="d-flex justify-content-center movie-row">
-                                    {% for item in rec %}
-                                        <div class="movie-card">
-                                            <img src="{{ item.poster_path if item.poster_path else url_for('static', filename='default_poster.jpg') }}"
-                                                 alt="{{ item.title }}">
-                                            <h4>{{ item.title }}</h4>
-                                            <a href="{{ url_for('movie_detail', movie_title=item.title) }}">Ver detalles</a>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <!-- Controles del carrusel para la sección Items -->
-                    <button class="carousel-control-prev" type="button" data-bs-target="#ItemsCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#ItemsCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    </button>
-                </div>
-            {% endif %}
-            <!-- sección Usuarios -->
-            {% if users_recommendations and users_recommendations|length > 0 %}
-                <h2 class="section-title">Porque otros con gustos similares vieron {{ movie.title }}</h2>
-                <div id="UsersCarousel" class="carousel slide" data-bs-interval="false" data-bs-wrap="true">
-                    <div class="carousel-inner">
-                        {% for rec in users_recommendations|batch(5) %}
-                            <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                <div class="d-flex justify-content-center movie-row">
-                                    {% for item in rec %}
-                                        <div class="movie-card">
-                                            <img src="{{ item.poster_path if item.poster_path else url_for('static', filename='default_poster.jpg') }}"
-                                                 alt="{{ item.title }}">
-                                            <h4>{{ item.title }}</h4>
-                                            <a href="{{ url_for('movie_detail', movie_title=item.title) }}">Ver detalles</a>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <!-- Controles del carrusel para la sección Usuarios -->
-                    <button class="carousel-control-prev" type="button" data-bs-target="#UsersCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#UsersCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    </button>
-                </div>
-            {% endif %}
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

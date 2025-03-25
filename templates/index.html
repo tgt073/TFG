@@ -8,63 +8,37 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container index-container">
-         <!-- Barra de navegación superior -->
-        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: rgba(0, 0, 0, 0);">
+    <div class="container index-container shadow-lg p-4 mt-5 rounded">
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: rgba(0, 0, 0, 0.7);">
             <div class="container-fluid">
-            <!-- Sección Izquierda: Logo + Nombre de Usuario con Dropdown -->
-            <div class="d-flex align-items-center">
-              <!-- LOGO -->
-               <a class="navbar-brand" href="{{ url_for('dashboard') }}">
-                <img src="{{ url_for('static', filename='imgs/Logo.png') }}"
-                     alt="Logo"
-                     width="45"
-                     height="50">
-              </a>
-
-              <!-- Dropdown del Usuario -->
-              <div class="dropdown ms-3">
-                <!-- Texto 'Bienvenido, user_1' que despliega el menú -->
-                <a class="nav-link dropdown-toggle text-white" href="#" role="button"
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-                   style="font-weight: 600;">{{ username }}
-                </a>
-                <!-- Menú desplegable con la opción 'Cerrar sesión' -->
-                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
-                  <li>
-                    <a class="dropdown-item" href="{{ url_for('logout') }}">
-                      Cerrar sesión
+                <!-- Sección Izquierda: Logo + Dropdown de Usuario -->
+                <div class="d-flex align-items-center">
+                    <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='imgs/Logo.png') }}"
+                             alt="Logo" width="45" height="50">
                     </a>
-                  </li>
+                    <div class="dropdown ms-3">
+                        <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 600;">{{ username }}</a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Menú central -->
+                <ul class="navbar-nav mx-auto d-flex align-items-center gap-4">
+                    <li class="nav-item"><a class="nav-link text-white fs-5" href="{{ url_for('dashboard') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link text-white fs-5" href="{{ url_for('index') }}">Tus Recomendaciones</a></li>
                 </ul>
-              </div>
+                <!-- Buscador rápido -->
+                <form class="d-flex" action="{{ url_for('search') }}" method="GET" style="max-width: 35%; width: 100%;">
+                    <input class="form-control me-2" type="search" name="query" placeholder="Buscar películas..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
+                </form>
             </div>
-            <!-- Sección Central: Botones de navegación -->
-            <ul class="navbar-nav mx-auto d-flex align-items-center gap-3">
-              <!-- Home -->
-              <li class="nav-item">
-                <a class="nav-link text-white fs-5"
-                   href="{{ url_for('dashboard') }}">
-                  Home
-                </a>
-              </li>
-              <!-- Tus Recomendaciones -->
-              <li class="nav-item">
-                <a class="nav-link text-white fs-5"
-                   href="{{ url_for('index') }}">
-                  Tus Recomendaciones
-                </a>
-              </li>
-            </ul>
-            <!-- Sección Central: Barra de Búsqueda -->
-            <form class="d-flex" action="{{ url_for('search') }}" method="GET" style="max-width: 40%; width: 100%;">
-              <input class="form-control me-2" type="search" name="query" placeholder="Buscar películas..." aria-label="Search">
-              <button class="btn btn-outline-light" type="submit">Buscar</button>
-            </form>
-          </div>
         </nav>
-        <h1>🎬 Recomendador de Películas</h1>
-        <form method="post">
+
+        <h1 class="text-center mt-5 text-warning">🎬 Recomendador de Películas</h1>
+        <form method="post" class="mt-4 bg-dark text-white p-4 rounded">
             <div class="mb-3">
                 <label for="method" class="form-label">Selecciona el método de recomendación:</label>
                 <select class="form-select" id="method" name="method" required>
@@ -72,11 +46,12 @@
                     <option value="colaborativo_items">Filtrado Colaborativo (Ítems)</option>
                     <option value="svd">Filtrado SVD</option>
                     <option value="contenido">Filtrado basado en Contenido</option>
+                    <option value="hibrido">Recomendación Híbrida</option>
                 </select>
             </div>
             <div class="mb-3">
-                <label for="user_id" class="form-label">ID de Usuario (Opcional para contenido):</label>
-                <input type="number" class="form-control" id="user_id" name="user_id" placeholder="Ingrese su ID de usuario">
+                <label for="user_id" class="form-label">ID de Usuario (opcional):</label>
+                <input type="number" class="form-control" id="user_id" name="user_id" placeholder="ID de usuario" value="{{ current_user.id }}">
             </div>
             <div class="mb-3">
                 <label for="movie_title" class="form-label">Título de Película (Opcional para colaborativo):</label>
@@ -86,30 +61,35 @@
                 <label for="num_recommendations" class="form-label">Número de recomendaciones:</label>
                 <input type="number" class="form-control" id="num_recommendations" name="num_recommendations" value="10" min="1" max="20">
             </div>
-            <button type="submit" class="btn btn-custom w-100">🔍 Obtener Recomendaciones</button>
+            <button type="submit" class="btn btn-warning w-100">🔍 Obtener Recomendaciones</button>
         </form>
-
-        {% if error_message %}
-            <div class="alert alert-danger mt-3">{{ error_message }}</div>
-        {% endif %}
-
-        {% if recommendations is not none and recommendations|length > 0 %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% if recommendations %}
             <div class="recommendations mt-4">
-                <h2>🍿 Tus Recomendaciones:</h2>
-                <ul class="list-group">
+                <h2 class="text-center text-warning">🍿 Tus Recomendaciones:</h2>
+                <div class="row row-cols-1 row-cols-md-3 g-4">
                     {% for rec in recommendations %}
-                        <li class="list-group-item">
-                            <strong>{{ rec.get('title', 'Título desconocido') }}</strong> <br>
-                            {% if rec.get('final_score') is not none %}
-                                🎯 Predicción Final Total: {{ rec.get('final_score', 0)|round(2) }}<br>
-                            {% endif %}
-                            {% if rec.get('predicted_rating') is not none %}
-                                🎯 Predicción personalizada: {{ rec.get('predicted_rating', 0)|round(2) }}<br>
-                            {% endif %}
-                            ⭐ Puntuación global: {{ rec.get('vote_average', 'N/A') }} (📊 {{ rec.get('vote_count', 0) }} votos)
-                        </li>
-                    {% endfor %}
-                </ul>
+                    <div class="col h-100">
+                        <div class="card h-100 text-white bg-dark border-light">
+                            <img src="{{ rec.poster_path if rec.poster_path else url_for('static', filename='default_poster.jpg') }}"
+                                 class="card-img-top" alt="{{ rec.title }}">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ rec.title }}</h5>
+                                <p class="card-text mt-auto">⭐ {{ rec.imdb_rating }}/10</p>
+                                <a href="{{ url_for('movie_detail', movie_title=rec['title'], year=rec['release_year']) }}" class="btn btn-warning">
+                                    Ver detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
             </div>
         {% endif %}
     </div>

@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- CSS propio -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
 </head>
 <body>
     <div class="dashboard-container">
@@ -21,27 +20,21 @@
                     </a>
                     <div class="dropdown ms-3">
                         <a class="nav-link dropdown-toggle text-white" href="#" role="button"
-                           id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-                           style="font-weight: 600;">{{ username }}
+                           id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 600;">
+                           {{ username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar sesión</a>
-                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar sesión</a></li>
                         </ul>
                     </div>
                 </div>
                 <!-- Menú central -->
                 <ul class="navbar-nav mx-auto d-flex align-items-center gap-4">
                     <li class="nav-item">
-                        <a class="nav-link text-white fs-5" href="{{ url_for('dashboard') }}">
-                            Home
-                        </a>
+                        <a class="nav-link text-white fs-5" href="{{ url_for('dashboard') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white fs-5" href="{{ url_for('index') }}">
-                            Tus Recomendaciones
-                        </a>
+                        <a class="nav-link text-white fs-5" href="{{ url_for('index') }}">Tus Recomendaciones</a>
                     </li>
                 </ul>
                 <!-- Buscador rápido -->
@@ -51,105 +44,277 @@
                 </form>
             </div>
         </nav>
-                  <!-- Contenedor principal de filtros y películas -->
-            <div class="container filters-container">
-                <!-- Panel de filtros con aspecto de tarjeta -->
-                <div class="filter-card mx-auto" style="max-width: 700px;">
-                    <h5>Filtrar Películas</h5>
-                    <form class="row g-4 align-items-end justify-content-center" action="{{ url_for('search') }}" method="GET">
-                        <!-- Filtro Género -->
-                        <div class="col-sm-2">
-                            <label for="genre" class="form-label text-white" style="font-size: 0.9rem;">Género</label>
-                            <select class="form-select form-select-sm" id="genre" name="genre">
-                                <option value="">Todos los géneros</option>
-                                <option value="Action">Action</option>
-                                <option value="Adventure">Adventure</option>
-                                <option value="Animation">Animation</option>
-                                <option value="Comedy">Comedy</option>
-                                <option value="Crime">Crime</option>
-                                <option value="Documentary">Documentary</option>
-                                <option value="Drama">Drama</option>
-                                <option value="Family">Family</option>
-                                <option value="Fantasy">Fantasy</option>
-                                <option value="Horror">Horror</option>
-                                <option value="Music">Music</option>
-                                <option value="Mystery">Mystery</option>
-                                <option value="Romance">Romance</option>
-                                <option value="Science Fiction">Science Fiction</option>
-                                <option value="Thriller">Thriller</option>
-                                <option value="War">War</option>
-                                <option value="Western">Western</option>
-                            </select>
+
+        <!-- Contenedor principal de filtros y películas -->
+        <div class="container filters-container">
+            <div class="filter-card mx-auto">
+                <h5 class="text-center">Filtrar Películas</h5>
+                <form class="row g-3 align-items-end justify-content-center" action="{{ url_for('filter_view') }}" method="GET">
+                    <!-- Filtro Género -->
+                    <div class="col-sm-4 col-md-3">
+                        <label for="genre" class="form-label">Género</label>
+                        <select class="form-select form-select-sm" id="genre" name="genre">
+                            <option value="">Todos los géneros</option>
+                            <option value="Action">Action</option>
+                            <option value="Adventure">Adventure</option>
+                            <option value="Animation">Animation</option>
+                            <option value="Comedy">Comedy</option>
+                            <option value="Crime">Crime</option>
+                            <option value="Documentary">Documentary</option>
+                            <option value="Drama">Drama</option>
+                            <option value="Family">Family</option>
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Horror">Horror</option>
+                            <option value="Music">Music</option>
+                            <option value="Mystery">Mystery</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Science Fiction">Science Fiction</option>
+                            <option value="Thriller">Thriller</option>
+                            <option value="War">War</option>
+                            <option value="Western">Western</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro Año (slider doble) -->
+                    <div class="col-sm-4 col-md-3">
+                        <label class="form-label">Año</label>
+                        <!-- Inputs numéricos para editar manualmente -->
+                        <div class="price-input">
+                          <div class="field">
+                            <span>Min:</span>
+                            <input type="number" id="yearMinInput" name="year_min" value="1900" min="1900" max="2024" step="1">
+                          </div>
+                          <div class="separator">-</div>
+                          <div class="field">
+                            <span>Max:</span>
+                            <input type="number" id="yearMaxInput" name="year_max" value="2024" min="1900" max="2024" step="1">
+                          </div>
                         </div>
-                        <!-- Filtro Año -->
-                        <div class="col-sm-2">
-                            <label for="year" class="form-label text-white" style="font-size: 0.9rem;">Año</label>
-                            <select class="form-select form-select-sm" id="year" name="year">
-                                <option value="">Todos los años</option>
-                                <option value="2022">2022</option>
-                                <option value="2021">2021</option>
-                                <option value="2020">2020</option>
-                                <option value="2019">2019</option>
-                            </select>
+                        <!-- Barra del slider + la parte naranja (progress) -->
+                        <div class="slider">
+                          <div class="progress" id="yearProgress"></div>
                         </div>
-                        <!-- Filtro Nota Mínima -->
-                        <div class="col-sm-2">
-                            <label for="min_rating" class="form-label text-white" style="font-size: 0.9rem;">Nota Mínima</label>
-                            <select class="form-select form-select-sm" id="min_rating" name="min_rating">
-                                <option value="">Sin filtro</option>
-                                <option value="8">8 o superior</option>
-                                <option value="7">7 o superior</option>
-                                <option value="6">6 o superior</option>
-                                <option value="5">5 o superior</option>
-                            </select>
+                        <!-- Dos sliders superpuestos -->
+                        <div class="range-input">
+                          <input type="range" id="yearMinRange" min="1900" max="2024" step="1" value="1900">
+                          <input type="range" id="yearMaxRange" min="1900" max="2024" step="1" value="2024">
                         </div>
-                        <!-- Botón de aplicar filtros -->
-                        <div class="col-sm-2 text-end">
-                            <button type="submit" class="btn btn-custom w-100" style="font-size: 0.9rem;">
-                                Aplicar Filtros
-                            </button>
+                    </div>
+
+                    <!-- Filtro Nota (slider doble) -->
+                    <div class="col-sm-4 col-md-3">
+                        <label class="form-label">Nota</label>
+                        <div class="price-input">
+                          <div class="field">
+                            <span>Min:</span>
+                            <input type="number" id="ratingMinInput" name="rating_min" value="0" min="0" max="10" step="0.1">
+                          </div>
+                          <div class="separator">-</div>
+                          <div class="field">
+                            <span>Max:</span>
+                            <input type="number" id="ratingMaxInput" name="rating_max" value="10" min="0" max="10" step="0.1">
+                          </div>
                         </div>
-                    </form>
+                        <div class="slider">
+                          <div class="progress" id="ratingProgress"></div>
+                        </div>
+                        <div class="range-input">
+                          <input type="range" id="ratingMinRange" min="0" max="10" step="0.1" value="0">
+                          <input type="range" id="ratingMaxRange" min="0" max="10" step="0.1" value="10">
+                        </div>
+                    </div>
+
+                    <!-- Botón de aplicar filtros -->
+                    <div class="col-sm-12 col-md-3 text-md-end">
+                        <button type="submit" class="btn btn-custom w-100">Aplicar Filtros</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sección de películas por género -->
+        {% for genre, movies in movies_by_genre.items() %}
+            <div class="genre-section">
+                <div id="carousel-{{ genre|replace(' ', '-') }}" class="carousel slide" data-bs-interval="false">
+                    <div class="genre-title-overlay">{{ genre }}</div>
+                    <div class="carousel-inner">
+                        {% for movie in movies|batch(6) %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <div class="d-flex justify-content-center movie-row">
+                                    {% for item in movie %}
+                                        <div class="movie-card">
+                                            <img src="{{ item['poster_path'] if item['poster_path'] else url_for('static', filename='default_poster.jpg') }}"
+                                                 alt="{{ item['title'] }}">
+                                            <h4>{{ item['title'] }}</h4>
+                                            <a href="{{ url_for('movie_detail', movie_title=item['title'], year=item['release_year']) }}" class="btn btn-warning">
+                                                Ver detalles
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button"
+                            data-bs-target="#carousel-{{ genre|replace(' ', '-') }}"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button"
+                            data-bs-target="#carousel-{{ genre|replace(' ', '-') }}"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    </button>
                 </div>
             </div>
-            <!-- Sección de películas por género -->
-            {% for genre, movies in movies_by_genre.items() %}
-                <div class="genre-section">
-                    <div id="carousel-{{ genre|replace(' ', '-') }}" class="carousel slide" data-bs-interval="false">
-                        <div class="genre-title-overlay">{{ genre }}</div>
-                        <div class="carousel-inner">
-                            {% for movie in movies|batch(6) %}
-                                <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                    <div class="d-flex justify-content-center movie-row">
-                                        {% for item in movie %}
-                                            <div class="movie-card">
-                                                <img src="{{ item['poster_path'] if item['poster_path'] else url_for('static', filename='default_poster.jpg') }}"
-                                                     alt="{{ item['title'] }}">
-                                                <h4>{{ item['title'] }}</h4>
-                                                <a href="{{ url_for('movie_detail', movie_title=item['title']) }}">Ver detalles</a>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <!-- Controles del carrusel -->
-                        <button class="carousel-control-prev" type="button"
-                                data-bs-target="#carousel-{{ genre|replace(' ', '-') }}"
-                                data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        </button>
-                        <button class="carousel-control-next" type="button"
-                                data-bs-target="#carousel-{{ genre|replace(' ', '-') }}"
-                                data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+        {% endfor %}
     </div>
+
     <!-- JS de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para controlar los sliders dobles -->
+    <script>
+      // --- Funciones para el Filtro de Años ---
+      const yearMinRange = document.getElementById("yearMinRange");
+      const yearMaxRange = document.getElementById("yearMaxRange");
+      const yearMinInput = document.getElementById("yearMinInput");
+      const yearMaxInput = document.getElementById("yearMaxInput");
+      const yearProgress = document.getElementById("yearProgress");
+
+      // Ajusta la barra naranja según los valores actuales
+      function setYearProgress(minVal, maxVal) {
+        const minRange = parseInt(yearMinRange.min);
+        const maxRange = parseInt(yearMinRange.max);
+        const range = maxRange - minRange;
+        const left = ((minVal - minRange) / range) * 100;
+        const right = 100 - ((maxVal - minRange) / range) * 100;
+        yearProgress.style.left = left + "%";
+        yearProgress.style.right = right + "%";
+      }
+
+      // Cambios en el slider mínimo
+      yearMinRange.addEventListener("input", () => {
+        let minVal = parseInt(yearMinRange.value);
+        let maxVal = parseInt(yearMaxRange.value);
+        if (minVal > maxVal) {
+          yearMinRange.value = maxVal;
+          minVal = maxVal;
+        }
+        yearMinInput.value = minVal;
+        setYearProgress(minVal, maxVal);
+      });
+
+      // Cambios en el slider máximo
+      yearMaxRange.addEventListener("input", () => {
+        let minVal = parseInt(yearMinRange.value);
+        let maxVal = parseInt(yearMaxRange.value);
+        if (maxVal < minVal) {
+          yearMaxRange.value = minVal;
+          maxVal = minVal;
+        }
+        yearMaxInput.value = maxVal;
+        setYearProgress(minVal, maxVal);
+      });
+
+      // Cambios en el input mínimo
+      yearMinInput.addEventListener("input", () => {
+        let minVal = parseInt(yearMinInput.value) || 1900;
+        let maxVal = parseInt(yearMaxRange.value);
+        if (minVal < parseInt(yearMinRange.min)) minVal = parseInt(yearMinRange.min);
+        if (minVal > maxVal) minVal = maxVal;
+        yearMinRange.value = minVal;
+        yearMinInput.value = minVal;
+        setYearProgress(minVal, maxVal);
+      });
+
+      // Cambios en el input máximo
+      yearMaxInput.addEventListener("input", () => {
+        let maxVal = parseInt(yearMaxInput.value) || 2024;
+        let minVal = parseInt(yearMinRange.value);
+        if (maxVal > parseInt(yearMaxRange.max)) maxVal = parseInt(yearMaxRange.max);
+        if (maxVal < minVal) maxVal = minVal;
+        yearMaxRange.value = maxVal;
+        yearMaxInput.value = maxVal;
+        setYearProgress(minVal, maxVal);
+      });
+
+      // Al cargar la página, dibujamos la barra naranja
+      window.addEventListener("load", () => {
+        let minVal = parseInt(yearMinRange.value);
+        let maxVal = parseInt(yearMaxRange.value);
+        setYearProgress(minVal, maxVal);
+      });
+
+      // --- Funciones para el Filtro de Notas ---
+      const ratingMinRange = document.getElementById("ratingMinRange");
+      const ratingMaxRange = document.getElementById("ratingMaxRange");
+      const ratingMinInput = document.getElementById("ratingMinInput");
+      const ratingMaxInput = document.getElementById("ratingMaxInput");
+      const ratingProgress = document.getElementById("ratingProgress");
+
+      function setRatingProgress(minVal, maxVal) {
+        const minRange = parseFloat(ratingMinRange.min);
+        const maxRange = parseFloat(ratingMinRange.max);
+        const range = maxRange - minRange;
+        const left = ((minVal - minRange) / range) * 100;
+        const right = 100 - ((maxVal - minRange) / range) * 100;
+        ratingProgress.style.left = left + "%";
+        ratingProgress.style.right = right + "%";
+      }
+
+      // Slider mínimo
+      ratingMinRange.addEventListener("input", () => {
+        let minVal = parseFloat(ratingMinRange.value);
+        let maxVal = parseFloat(ratingMaxRange.value);
+        if (minVal > maxVal) {
+          ratingMinRange.value = maxVal;
+          minVal = maxVal;
+        }
+        ratingMinInput.value = minVal;
+        setRatingProgress(minVal, maxVal);
+      });
+
+      // Slider máximo
+      ratingMaxRange.addEventListener("input", () => {
+        let minVal = parseFloat(ratingMinRange.value);
+        let maxVal = parseFloat(ratingMaxRange.value);
+        if (maxVal < minVal) {
+          ratingMaxRange.value = minVal;
+          maxVal = minVal;
+        }
+        ratingMaxInput.value = maxVal;
+        setRatingProgress(minVal, maxVal);
+      });
+
+      // Input mínimo
+      ratingMinInput.addEventListener("input", () => {
+        let minVal = parseFloat(ratingMinInput.value) || 0;
+        let maxVal = parseFloat(ratingMaxRange.value);
+        if (minVal < parseFloat(ratingMinRange.min)) minVal = parseFloat(ratingMinRange.min);
+        if (minVal > maxVal) minVal = maxVal;
+        ratingMinRange.value = minVal;
+        ratingMinInput.value = minVal;
+        setRatingProgress(minVal, maxVal);
+      });
+
+      // Input máximo
+      ratingMaxInput.addEventListener("input", () => {
+        let maxVal = parseFloat(ratingMaxInput.value) || 10;
+        let minVal = parseFloat(ratingMinRange.value);
+        if (maxVal > parseFloat(ratingMaxRange.max)) maxVal = parseFloat(ratingMaxRange.max);
+        if (maxVal < minVal) maxVal = minVal;
+        ratingMaxRange.value = maxVal;
+        ratingMaxInput.value = maxVal;
+        setRatingProgress(minVal, maxVal);
+      });
+
+      // Inicializar la barra de notas
+      window.addEventListener("load", () => {
+        let minVal = parseFloat(ratingMinRange.value);
+        let maxVal = parseFloat(ratingMaxRange.value);
+        setRatingProgress(minVal, maxVal);
+      });
+    </script>
 </body>
 </html>

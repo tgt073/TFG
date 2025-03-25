@@ -25,6 +25,93 @@ body {
     padding: 20px;
 }
 
+ /* === Estilos para los sliders dobles (Año y Nota) === */
+      /* Contenedor de los inputs numéricos */
+      .price-input {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+      }
+      .price-input .field {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .price-input .field span {
+        font-weight: bold;
+      }
+      .price-input .separator {
+        font-weight: bold;
+      }
+
+      /* Barra principal del slider */
+      .slider {
+        position: relative;
+        height: 5px;
+        background: #ddd;
+        border-radius: 5px;
+        margin: 10px auto;
+        width: 100%; /* Se ajustará al contenedor de Bootstrap */
+        max-width: 280px; /* Ancho máximo */
+      }
+      /* Porción amarilla que indica el rango seleccionado */
+      .slider .progress {
+        position: absolute;
+        height: 5px;
+        background: #ffc107;
+        border-radius: 5px;
+      }
+
+      /* Contenedor de los dos range inputs superpuestos */
+      .range-input {
+        position: relative;
+        width: 100%;
+        max-width: 300px; /* Debe coincidir con la .slider */
+        height: 0; /* Para superponerlos sin ocupar espacio extra */
+        margin: 0 auto;
+      }
+      .range-input input[type="range"] {
+        position: absolute;
+        top: -20px; /* Ajustar para centrar las manecillas */
+        width: 100%;
+        pointer-events: none;
+        background: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
+      /* Permitir que el thumb sea clickeable */
+      .range-input input[type="range"]::-webkit-slider-thumb {
+        pointer-events: all;
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border: 2px solid orange;
+        border-radius: 50%;
+        cursor: pointer;
+        -webkit-appearance: none;
+        margin-top: 0;
+      }
+      .range-input input[type="range"]::-moz-range-thumb {
+        pointer-events: all;
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border: 2px solid orange;
+        border-radius: 50%;
+        cursor: pointer;
+        -moz-appearance: none;
+        margin-top: 0;
+      }
+      /* Quitamos la línea de fondo extra */
+      .range-input input[type="range"]::-webkit-slider-runnable-track {
+        background: transparent;
+      }
+      .range-input input[type="range"]::-moz-range-track {
+        background: transparent;
+      }
+
 .dashboard-container h2 {
     color: white;
     text-decoration: none;
@@ -81,19 +168,15 @@ body {
     font-size: 1rem;
 }
 
-/* Si NO quieres efecto hover, NO definas .filter-card:hover { transform: scale(...) } */
-/* Pero si quieres un leve brillo sin movimiento, podrías hacer: */
 .filter-card:hover {
     box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.4);
     /* Sin transform, así no se mueve ni hace zoom */
 }
 
-
-
 /* Sección de Géneros */
 .genre-section {
     width: 100%;
-    margin-top: 70px; /* Ajusta este valor para más o menos espacio */
+    margin-top: 70px; /* este valor para más o menos espacio */
     margin-bottom: 80px;
     padding-left: 20px;
 }
@@ -126,7 +209,7 @@ body {
     justify-content: center;
     padding: 20px 0;
 }
-/* Quita la altura fija y usa min-height para que no se corte */
+
 .movie-card {
     width: 220px;           /* Mantiene un ancho fijo */
     min-height: 370px;      /* Espacio mínimo para imagen + título */
@@ -155,9 +238,7 @@ body {
     font-weight: bold;
 }
 .movie-card a {
-    color: #e50914;
     text-decoration: none;
-    font-weight: bold;
     font-size: 14px;
 }
 .movie-card:hover {
@@ -172,7 +253,7 @@ body {
     max-width: 1200px;
     margin: 40px auto;
     color: white;
-    margin-top: 60px; /* Ajusta según el tamaño del navbar */
+    margin-top: 60px;
 }
 .movie-info {
     display: flex;
@@ -200,17 +281,16 @@ body {
 }
 .back-button {
     display: inline-block;
-    background-color: #e50914;
-    color: white;
+    background-color: #ffc107;
+    color: black;
     text-decoration: none;
     padding: 10px 20px;
     border-radius: 5px;
-    font-weight: bold;
     margin-top: 20px;
     transition: background 0.3s;
 }
 .back-button:hover {
-    background-color: #f40612;
+    background-color: #ffd966;
 }
 
 /* ================================
@@ -457,13 +537,18 @@ body {
     font-weight: bold;
 }
 .btn-custom {
-    background-color: #ff6600;
-    color: white;
+    background-color: #ffc107 ;
+    color: black;
     border: none;
     transition: 0.3s;
 }
+
 .btn-custom:hover {
-    background-color: #ff4500;
+    background-color: #ffd966;
+}
+
+.btn:hover {
+    background-color: #ffd966;
 }
 .recommendations {
     margin-top: 20px;
@@ -486,6 +571,20 @@ body {
     color: white;
     transition: transform 0.3s, box-shadow 0.3s;
 }
+
+.card-title {
+    /* Altura aproximada para 2 líneas, ajusta según tu tipografía */
+    max-height: 3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Configuración del clamp */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Número de líneas que quieres mostrar */
+    -webkit-box-orient: vertical;
+}
+
+
 .card:hover {
     transform: scale(1.05);
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
@@ -497,8 +596,9 @@ body {
     height: 300px;
 }
 .card:hover .card-img-top {
-    transform: scale(1.05);
+    transform: none;
 }
+
 /* Truncado de texto a dos líneas */
 .text-truncate-2 {
     display: -webkit-box;
