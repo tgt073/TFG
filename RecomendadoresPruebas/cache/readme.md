@@ -1,0 +1,1 @@
+carpeta donde se almacenan archivois intermedios para facilitar calculos y ahorra tiempo 
