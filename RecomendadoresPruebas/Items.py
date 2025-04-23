@@ -1,33 +1,42 @@
-import pandas as pd
-import numpy as np
-import math
+import os
+import re
+import datetime
 import warnings
 import pickle
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split, KFold
-import re
+import numpy as np
+import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
-import datetime
+from sklearn.model_selection import train_test_split
 
 warnings.filterwarnings("ignore")
 
+#########################################
+# Utilidades para la caché              #
+#########################################
+def ensure_cache_dir(subdir="cache"):
+    base_path = os.path.dirname(os.path.abspath(__file__))  # Este archivo está en RecomendadoresPruebas
+    cache_path = os.path.join(base_path, subdir)
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
+    return cache_path
+
+def get_cache_path(filename, subdir="cache"):
+    return os.path.join(ensure_cache_dir(subdir), filename)
+
+#########################################
+# Funciones de Preprocesamiento         #
+#########################################
 def extract_year(date_str: str) -> int | None:
-    """
-    Extrae el año (como entero) a partir de una fecha en formato MM/DD/YYYY.
-    Retorna None si la conversión falla.
-    """
     try:
         return datetime.datetime.strptime(date_str, '%m/%d/%Y').year
     except Exception:
         return None
 
-#########################################
-# Funciones de Preprocesamiento         #
-#########################################
 def load_preprocessed_data(ratings_filepath: str, movies_filepath: str):
     ratings_df = pd.read_csv(ratings_filepath, low_memory=False)
     movies_df = pd.read_csv(movies_filepath, low_memory=False)
-    for df in [movies_df, ratings_df]:
+
+    for df in [ratings_df, movies_df]:
         if 'imdbId' in df.columns:
             df.rename(columns={'imdbId': 'imdb_id'}, inplace=True)
         df['imdb_id'] = df['imdb_id'].apply(
@@ -35,15 +44,18 @@ def load_preprocessed_data(ratings_filepath: str, movies_filepath: str):
         df['imdb_id'] = pd.to_numeric(df['imdb_id'], errors='coerce')
         df.dropna(subset=['imdb_id'], inplace=True)
         df['imdb_id'] = df['imdb_id'].astype(int)
+
     movies_df.drop_duplicates(subset=['imdb_id'], inplace=True)
-    # Extraemos el año a partir del campo "release_date"
+
     if 'release_date' in movies_df.columns:
         movies_df['release_year'] = movies_df['release_date'].apply(lambda d: extract_year(d))
-    # Filtramos la película problemática: por ejemplo, eliminamos "Gladiator" de 1992
+
+    # Eliminamos películas problemáticas
     movies_df = movies_df[~((movies_df['title'].str.lower() == 'gladiator') &
-                              (movies_df['release_year'] == 1992))]
+                            (movies_df.get('release_year') == 1992))]
     movies_df = movies_df[~((movies_df['title'].str.lower() == 'the bourne identity') &
-                            (movies_df['release_year'] == 1988))]
+                            (movies_df.get('release_year') == 1988))]
+
     return ratings_df, movies_df
 
 def create_user_item_matrix(ratings_df: pd.DataFrame) -> pd.DataFrame:
@@ -58,7 +70,7 @@ def filter_ratings(ratings_df: pd.DataFrame, min_user_ratings: int = 5, min_item
     return ratings_df[ratings_df['imdb_id'].isin(valid_items)]
 
 #########################################
-# Implementación del Modelo ItemBasedCF #
+# Modelo ItemBasedCF con Similitud Ajustada
 #########################################
 class ItemBasedCF:
     def __init__(self, ratings_df: pd.DataFrame, k: int = 20, m_threshold: int = 150, lambda_shrink: float = 10):
@@ -67,49 +79,77 @@ class ItemBasedCF:
         self.k = k
         self.m_threshold = m_threshold
         self.lambda_shrink = lambda_shrink
-        self.item_similarity = self.load_similarity_matrix()
-        if self.item_similarity is None or set(self.item_similarity.index) != set(self.user_item.columns):
-            self.compute_similarity()
-            self.save_similarity_matrix()
 
-    def load_similarity_matrix(self, filename="item_similarity.pkl"):
+        # Intentar cargar la matriz de similitud desde caché
         try:
-            with open(filename, "rb") as f:
-                return pickle.load(f)
-        except (FileNotFoundError, pickle.UnpicklingError):
-            return None
-
-    def save_similarity_matrix(self, filename="item_similarity.pkl"):
-        with open(filename, "wb") as f:
-            pickle.dump(self.item_similarity, f)
+            with open(get_cache_path("item_similarity.pkl"), "rb") as f:
+                self.item_similarity = pickle.load(f)
+        except FileNotFoundError:
+            self.compute_similarity()
 
     def compute_similarity(self):
-        similarity = cosine_similarity(self.user_item.T)
-        similarity = np.nan_to_num(similarity) / (1 + self.lambda_shrink)
-        self.item_similarity = pd.DataFrame(similarity, index=self.user_item.columns, columns=self.user_item.columns)
+        centered_matrix = self.user_item.sub(self.user_item.mean(axis=1), axis=0)
+        sim = cosine_similarity(centered_matrix.T)
+        sim = np.nan_to_num(sim) / (1 + self.lambda_shrink)
+        self.item_similarity = pd.DataFrame(sim, index=self.user_item.columns, columns=self.user_item.columns)
+
+        with open(get_cache_path("item_similarity.pkl"), "wb") as f:
+            pickle.dump(self.item_similarity, f)
 
     def predict_rating(self, user: int, movie: int) -> float:
+        movie = int(movie)
         if movie not in self.user_item.columns or user not in self.user_item.index:
             return np.nan
+
         user_ratings = self.user_item.loc[user]
-        rated_movies = user_ratings[user_ratings > 0].index
+        if (user_ratings > 0).sum() == 0:
+            return np.nan
+
+        user_mean = user_ratings[user_ratings > 0].mean()
+        rated_movies = user_ratings[user_ratings > 0].index.astype(int)
+        rated_movies = [m for m in rated_movies if m in self.item_similarity.index]
+        if not rated_movies:
+            return np.nan
+
+        centered_ratings = user_ratings.loc[rated_movies] - user_mean
         sim_scores = self.item_similarity.loc[movie, rated_movies]
         top_k = sim_scores.abs().nlargest(self.k)
         if top_k.sum() == 0:
             return np.nan
-        return np.dot(user_ratings[top_k.index], top_k) / top_k.sum()
+
+        weighted_sum = np.dot(centered_ratings.loc[top_k.index], top_k)
+        pred = user_mean + (weighted_sum / top_k.sum())
+        return np.clip(pred, 0, 5)
 
     def recommend_movies(self, user: int, movies_df: pd.DataFrame, top_n: int = 10) -> list:
+        print(f"Intentando recomendar películas para el usuario: {user}")
+
+        if user not in self.user_item.index:
+            print("El usuario no está en la matriz de usuario-ítem después del filtrado.")
+            return []
+
         rated_movies = self.user_item.loc[user][self.user_item.loc[user] > 0].index
-        unseen_movies = list(set(movies_df['imdb_id']) - set(rated_movies))
-        predictions = (self.predict_rating(user, movie) for movie in unseen_movies)
-        pred_df = pd.DataFrame({'imdb_id': unseen_movies, 'predicted_rating': predictions}).dropna()
-        pred_df = pred_df.merge(
-            movies_df[['imdb_id', 'title', 'release_year', 'imdb_votes', 'imdb_rating', 'poster_path']],
-            on='imdb_id', how='left'
-        )
+        unseen_movies = set(self.user_item.columns) - set(rated_movies)
+        print(f"Películas calificadas: {len(rated_movies)}, Películas no vistas: {len(unseen_movies)}")
+
+        predicciones = []
+        for movie in unseen_movies:
+            pred = self.predict_rating(user, movie)
+            if not np.isnan(pred):
+                predicciones.append((movie, pred))
+
+        if not predicciones:
+            print("No se generaron predicciones válidas.")
+            return []
+
+        pred_df = pd.DataFrame(predicciones, columns=['imdb_id', 'predicted_rating'])
+        pred_df = pred_df.merge(movies_df[['imdb_id', 'title', 'imdb_rating', 'imdb_votes']], on='imdb_id', how='left')
+
+        print(f"Predicciones totales antes del filtrado por votos: {len(pred_df)}")
         pred_df = pred_df[(pred_df['imdb_rating'] > 5) & (pred_df['imdb_votes'] >= self.m_threshold)]
-        return pred_df.sort_values(by='predicted_rating', ascending=False).head(top_n).to_dict(orient='records')
+        print(f"Predicciones tras filtrado por votos: {len(pred_df)}")
+
+        return pred_df.sort_values('predicted_rating', ascending=False).head(top_n).to_dict(orient='records')
 
 #########################################
 # Interfaz para la aplicación web       #
@@ -121,19 +161,13 @@ def get_item_based_recommendations(user_id: int, movies_file: str, ratings_file:
     model = ItemBasedCF(train_ratings)
     return model.recommend_movies(user_id, movies_df, top_n)
 
-
 if __name__ == '__main__':
-    # Rutas a los archivos (ajusta las rutas según tu entorno)
     ratings_filepath = 'C:/Users/tgtob/TFG/ConjutoDatos/DatosFinales/Final_ratings.csv'
     movies_filepath = 'C:/Users/tgtob/TFG/ConjutoDatos/DatosFinales/Final_movies.csv'
-
-    # Definimos un usuario de prueba (asegúrate de que exista en el dataset de ratings)
     test_user_id = 1
 
-    # Obtenemos las recomendaciones basadas en ítems para el usuario de prueba
     recommendations = get_item_based_recommendations(test_user_id, movies_filepath, ratings_filepath, top_n=10)
 
-    # Imprimimos las recomendaciones
     print(f"Recomendaciones para el usuario {test_user_id}:")
     for rec in recommendations:
         print("Título:", rec.get('title'))

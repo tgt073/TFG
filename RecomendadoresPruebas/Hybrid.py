@@ -4,6 +4,24 @@ from RecomendadoresPruebas.Contenido import get_content_based_recommendations
 from RecomendadoresPruebas.Modelo import get_svd_recommendations
 
 
+# Funciones utilitarias para la caché
+def ensure_cache_dir(subdir="cache"):
+    """
+    Asegura la existencia del directorio de caché dentro de RecomendadoresPruebas.
+    """
+    base_path = os.path.dirname(os.path.abspath(__file__))  # RecomendadoresPruebas/
+    cache_path = os.path.join(base_path, subdir)
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
+    return cache_path
+
+def get_cache_path(filename, subdir="cache"):
+    """
+    Devuelve la ruta completa del archivo dentro del directorio de caché.
+    """
+    return os.path.join(ensure_cache_dir(subdir), filename)
+
+
 def normalize_scores(recs, key):
     """Normaliza las puntuaciones de un listado de recomendaciones."""
     scores = [rec.get(key, 0) for rec in recs]
@@ -13,13 +31,6 @@ def normalize_scores(recs, key):
     for rec in recs:
         rec[key + '_norm'] = (rec.get(key, 0) - min_val) / (max_val - min_val) if max_val != min_val else 0.5
     return recs
-
-
-def ensure_cache_dir(cache_dir="cache"):
-    if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
-    return cache_dir
-
 
 def get_hybrid_recommendations_cascade(user_id, movie_title, movies_file, ratings_file, top_n=20, candidate_n=1000):
     """

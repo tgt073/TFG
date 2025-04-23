@@ -403,27 +403,6 @@ def filter_movies(df: pd.DataFrame,
     return df
 
 
-def filter_movies(df: pd.DataFrame,
-                  year_min: int,
-                  year_max: int,
-                  rating_min: float,
-                  rating_max: float,
-                  genre_filter: str = "") -> pd.DataFrame:
-    """
-    Filtra el DataFrame df según el rango de años, nota y género.
-    Se asume que df tiene la columna 'release_date' para extraer el año.
-    """
-    if 'year' not in df.columns:
-        df['year'] = df['release_date'].apply(lambda d: extract_year(d))
-    df['imdb_rating'] = pd.to_numeric(df['imdb_rating'], errors='coerce').fillna(0)
-
-    df = df[(df['year'] >= year_min) & (df['year'] <= year_max)]
-    df = df[(df['imdb_rating'] >= rating_min) & (df['imdb_rating'] <= rating_max)]
-    if genre_filter:
-        df = df[df['genres'].str.contains(genre_filter, case=False, na=False)]
-    return df
-
-
 @app.route('/filter')
 @login_required
 def filter_view():

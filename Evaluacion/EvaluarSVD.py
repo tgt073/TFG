@@ -33,6 +33,6 @@ results = evaluate_with_kfold(algo, data, n_splits=3)
 mean_rmse = np.mean(results['test_rmse'])
 mean_mae = np.mean(results['test_mae'])
 
-print("Evaluación del Modelo SVD (con muestra del 1% y 3 folds):")
+print("Evaluación del Modelo SVD (con muestra del 50% y 3 folds):")
 print("Mean RMSE: {:.4f}".format(mean_rmse))
 print("Mean MAE: {:.4f}".format(mean_mae))
